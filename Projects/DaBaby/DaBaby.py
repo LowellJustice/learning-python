@@ -1,20 +1,30 @@
 from playsound import playsound
-from pynput import mouse
-import sys
-import os
-if getattr(sys, 'frozen', False):
-    Current_Path = os.path.dirname(sys.executable)
-else:
-    Current_Path = str(os.path.dirname(__file__))
+from pynput import keyboard
+
+hasReleased = True
 
 
-def on_click(x, y, button, pressed):
-    if pressed:
-        playsound('YeahYeah.mp3', block=False)
-    if not pressed:
+def on_press(key):
+    global hasReleased
+    if hasReleased:
+        try:
+            playsound('YeahYeah.mp3', block=False)
+            hasReleased = False
+        except AttributeError:
+            playsound('YeahYeah.mp3', block=False)
+            hasReleased = False
+
+
+def on_release(key):
+    global hasReleased
+    hasReleased = True
+    if key == keyboard.Key.esc:
+        # Stop listener
         return False
 
 
 while True:
-    with mouse.Listener(on_click=on_click,) as listener:
+    with keyboard.Listener(
+            on_press=on_press,
+            on_release=on_release) as listener:
         listener.join()
